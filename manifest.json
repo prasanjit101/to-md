@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "To-Md",
+  "version": "1.0",
+  "permissions": ["activeTab", "downloads", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "128": "icon128.png"
+    },
+    "default_title": "to Markdown"
+  },
+  "icons": {
+    "128": "icon128.png"
+  }
+}
