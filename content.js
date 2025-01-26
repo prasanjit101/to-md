@@ -1,29 +1,135 @@
+// Function to show a custom alert message
+function showCustomAlert(message) {
+  // Create a container for the alert
+  const alertContainer = document.createElement('div');
+  alertContainer.style.position = 'fixed';
+  alertContainer.style.top = '20px';
+  alertContainer.style.left = '50%';
+  alertContainer.style.transform = 'translateX(-50%)';
+  alertContainer.style.backgroundColor = '#ff4444';
+  alertContainer.style.color = '#ffffff';
+  alertContainer.style.padding = '10px 20px';
+  alertContainer.style.borderRadius = '5px';
+  alertContainer.style.zIndex = '10000';
+  alertContainer.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+  alertContainer.style.fontFamily = 'Arial, sans-serif';
+  alertContainer.style.fontSize = '14px';
+  alertContainer.style.textAlign = 'center';
+
+  // Add the message to the container
+  alertContainer.textContent = message;
+
+  // Append the container to the body
+  document.body.appendChild(alertContainer);
+
+  // Remove the alert after 5 seconds
+  setTimeout(() => {
+    document.body.removeChild(alertContainer);
+  }, 5000);
+}
+
+
 // Check if the current page is restricted
 if (window.location.href.startsWith('chrome://') || window.location.href.startsWith('edge://')) {
-  console.log('Extension cannot run on chrome:// or edge:// pages.');
+  showCustomAlert('Extension cannot run on chrome:// or edge:// pages.');
 } else {
   let hoveredElement = null;
   let isExtensionActive = true; // Track if the extension is active
 
   function scrapeToMarkdown(element) {
-    // Text content
-    const text = element.textContent
-      .trim()
-      .replace(/\n\s+/g, '\n\n');
+    // Helper function to check if an element should be ignored
+    function shouldIgnoreElement(node) {
+      const ignoredTags = ['script', 'style', 'svg'];
+      const ignoredClasses = ['ad', 'ads', 'advertisement']; // Add more as needed
+      const ignoredAttributes = ['onclick', 'onload']; // Add more as needed
 
-    // Images
-    const images = Array.from(element.querySelectorAll('img'))
-      .map(img => `![${img.alt || 'image'}](${img.src})`);
+      // Ignore specific tags
+      if (ignoredTags.includes(node.tagName.toLowerCase())) {
+        return true;
+      }
 
-    // Videos
-    const videos = Array.from(element.querySelectorAll('video, source[type^="video/"]'))
-      .map(video => {
-        const src = video.src || video.querySelector('source')?.src;
-        return src ? `[Video](${src})` : '';
-      })
-      .filter(link => link);
+      // Ignore elements with specific classes
+      if (node.classList && Array.from(node.classList).some(cls => ignoredClasses.includes(cls))) {
+        return true;
+      }
 
-    return `${text}\n\n${images.join('\n')}\n\n${videos.join('\n')}`;
+      // Ignore elements with specific attributes
+      if (ignoredAttributes.some(attr => node.hasAttribute(attr))) {
+        return true;
+      }
+
+      return false;
+    }
+
+    // Helper function to convert HTML elements to Markdown
+    function convertToMarkdown(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent.trim();
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE || shouldIgnoreElement(node)) {
+        return '';
+      }
+
+      const tagName = node.tagName.toLowerCase();
+      const children = Array.from(node.childNodes).map(convertToMarkdown).join('');
+
+      switch (tagName) {
+        case 'h1':
+          return `# ${children}\n\n`;
+        case 'h2':
+          return `## ${children}\n\n`;
+        case 'h3':
+          return `### ${children}\n\n`;
+        case 'h4':
+          return `#### ${children}\n\n`;
+        case 'h5':
+          return `##### ${children}\n\n`;
+        case 'h6':
+          return `###### ${children}\n\n`;
+        case 'p':
+          return `${children}\n\n`;
+        case 'b':
+        case 'strong':
+          return `**${children}**`;
+        case 'i':
+        case 'em':
+          return `*${children}*`;
+        case 'a':
+          return `[${children}](${node.href})`;
+        case 'img':
+          return `![${node.alt || 'image'}](${node.src})`;
+        case 'ul':
+          return `${children}`;
+        case 'ol':
+          return `${children}`;
+        case 'li':
+          const prefix = node.parentElement.tagName.toLowerCase() === 'ol' ? '1. ' : '- ';
+          return `${prefix}${children}\n`;
+        case 'blockquote':
+          return `> ${children}\n\n`;
+        case 'code':
+          return `\`${children}\``;
+        case 'pre':
+          return `\`\`\`\n${children}\n\`\`\`\n\n`;
+        case 'hr':
+          return `---\n\n`;
+        default:
+          return children;
+      }
+    }
+
+    // Convert the entire element to Markdown
+    return convertToMarkdown(element).trim();
+  }
+  // Helper function to sanitize filenames
+  function sanitizeFilename(title) {
+    // Replace invalid characters with underscores
+    return title
+      .replace(/[/\\:*?"<>|]/g, '_') // Replace invalid characters
+      .trim() // Remove leading/trailing spaces
+      .replace(/\s+/g, '_') // Replace spaces with underscores
+      .substring(0, 100); // Limit filename length
   }
 
   function handleElementClick(event) {
@@ -34,7 +140,7 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     event.stopImmediatePropagation();
 
     const element = event.target.closest('*');
-    
+
     // Remove hover outline
     if (hoveredElement) {
       hoveredElement.style.outline = '';
@@ -46,10 +152,10 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
 
     // Generate Markdown
     const markdown = scrapeToMarkdown(element);
-    
+
     // Cleanup event listeners
     deactivateExtension();
-    
+
     // Create a Blob and generate a URL
     const blob = new Blob([markdown], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
@@ -57,15 +163,16 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     // Get the tab title
     chrome.runtime.sendMessage({ action: 'getTabTitle' }, (response) => {
       const tabTitle = response.tabTitle || 'content'; // Fallback to 'content' if title is unavailable
-      const filename = `${tabTitle}.md`;
+    const sanitizedTitle = sanitizeFilename(tabTitle); // Sanitize the title
+    const filename = `${sanitizedTitle}.md`; // Add .md extension
 
-      // Send the URL and filename to the background script
-      chrome.runtime.sendMessage({
-        action: 'downloadMarkdown',
-        url: url,
-        filename: filename
-      });
+    // Send the URL and filename to the background script
+    chrome.runtime.sendMessage({
+      action: 'downloadMarkdown',
+      url: url,
+      filename: filename
     });
+  });
   }
 
   function handleElementHover(event) {
