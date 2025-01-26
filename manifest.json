@@ -8,15 +8,11 @@
   },
   "action": {
     "default_icon": {
-      "128": "./icons/icon128.png",
-      "48": "./icons/icon48.png",
-      "512": "./icons/icon512.png"
+      "128": "./icons/icon128.png"
     },
     "default_title": "to Markdown"
   },
   "icons": {
-    "128": "./icons/icon128.png",
-    "48": "./icons/icon48.png",
-    "512": "./icons/icon512.png"
+    "128": "./icons/icon128.png"
   }
 }
