@@ -1,37 +1,6 @@
-// Function to show a custom alert message
-function showCustomAlert(message) {
-  // Create a container for the alert
-  const alertContainer = document.createElement('div');
-  alertContainer.style.position = 'fixed';
-  alertContainer.style.top = '20px';
-  alertContainer.style.left = '50%';
-  alertContainer.style.transform = 'translateX(-50%)';
-  alertContainer.style.backgroundColor = '#ff4444';
-  alertContainer.style.color = '#ffffff';
-  alertContainer.style.padding = '10px 20px';
-  alertContainer.style.borderRadius = '5px';
-  alertContainer.style.zIndex = '10000';
-  alertContainer.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
-  alertContainer.style.fontFamily = 'Arial, sans-serif';
-  alertContainer.style.fontSize = '14px';
-  alertContainer.style.textAlign = 'center';
-
-  // Add the message to the container
-  alertContainer.textContent = message;
-
-  // Append the container to the body
-  document.body.appendChild(alertContainer);
-
-  // Remove the alert after 5 seconds
-  setTimeout(() => {
-    document.body.removeChild(alertContainer);
-  }, 5000);
-}
-
-
 // Check if the current page is restricted
 if (window.location.href.startsWith('chrome://') || window.location.href.startsWith('edge://')) {
-  showCustomAlert('Extension cannot run on chrome:// or edge:// pages.');
+  alert('Extension cannot run on chrome:// or edge:// pages.');
 } else {
   let hoveredElement = null;
   let isExtensionActive = true; // Track if the extension is active
@@ -167,10 +136,16 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     const filename = `${sanitizedTitle}.md`; // Add .md extension
 
     // Send the URL and filename to the background script
-    chrome.runtime.sendMessage({
-      action: 'downloadMarkdown',
-      url: url,
-      filename: filename
+      // chrome.runtime.sendMessage({
+      //   action: 'downloadMarkdown',
+      //   url: url,
+      //   filename: filename
+      // });
+
+      navigator.clipboard.writeText(markdown).then(() => {
+        alert('Content copied to clipboard');
+      }).catch((err) => {
+        console.error('Failed to copy content: ', err);
     });
   });
   }
