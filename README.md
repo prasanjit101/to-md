@@ -1,6 +1,6 @@
 # To-Md Chrome Extension
 
-This Chrome extension allows users to select any DOM element on a webpage and scrape its text content, images, and video links into a Markdown file. The downloaded file is named after the title of the current tab.
+This Chrome extension allows users to select any DOM element on a webpage and scrape its text content, images, and video links into a Markdown file into an LLM friendly format. The downloaded file is named after the title of the current tab.
 
 ## Features
 - **Select DOM Elements**: Click on any element to select it.
@@ -106,3 +106,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contributing
 Contributions are welcome! If you find a bug or have a feature request, please open an issue or submit a pull request.
+
+---
+
+## Feedback
+
+If you have any feedback, suggestions, or questions, feel free to reach out to me on [Twitter](https://twitter.com/jit_infinity) or add an issue on [GitHub](https://github.com/prasanjit101/to-md)
