@@ -1,4 +1,4 @@
-# To-Md Chrome Extension
+# Webtext Chrome Extension
 
 This Chrome extension allows users to select any DOM element on a webpage and scrape its text content, images, and video links into a Markdown file into an LLM friendly format. The downloaded file is named after the title of the current tab.
 

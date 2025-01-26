@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "To-Md",
+  "name": "Webtext",
   "version": "1.0",
   "permissions": ["activeTab", "downloads", "scripting", "clipboardWrite"],
   "background": {
@@ -10,7 +10,7 @@
     "default_icon": {
       "128": "./icons/icon128.png"
     },
-    "default_title": "to Markdown"
+    "default_title": "Webtext"
   },
   "icons": {
     "128": "./icons/icon128.png"
